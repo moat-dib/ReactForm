@@ -19,6 +19,7 @@
 }
 
 .formStyle input[type='password'],
+.formStyle input[type='text'],
 .formStyle input[type='email'] {
 	-webkit-transition: all 0.3s ease-in-out;
 	-moz-transition: all 0.3s ease-in-out;
@@ -56,4 +57,8 @@
 .formStyle input[type='submit']:hover,
 .formStyle input[type='button']:hover {
 	background: #2ebc99;
+}
+.errorLabel {
+	color: darkred;
+	margin-bottom: 12px;
 }
