@@ -1,74 +1,62 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 import styles from './Form.module.css';
 export const Form = () => {
-	const [email, setEmail] = useState('');
-	const [registerError, setRegisterError] = useState(null);
-	const [password1, setPassword1] = useState('');
-	const [password2, setPassword2] = useState('');
-
-	const onEmailBlur = ({ target }) => {
-		setEmail(target.value);
-		let newError = null;
-		if (!/^[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}$/i.test(target.value)) {
-			newError = 'E-mail имеет неверную структуру';
-		}
-		setRegisterError(newError);
-	};
-	const onPasswordBlur = ({ target }) => {
-		setPassword1(target.value);
-		let newError = null;
-		if (target.value.length < 6 || target.value.length > 12) {
-			newError = 'Пароль должен содержать от 6 до 12 символов';
-			setRegisterError(newError);
-		} else {
-			if (password1 !== password2) {
-				setRegisterError('Пароли не равны');
-			} else {
-				setRegisterError(null);
-			}
-		}
+	const fieldsSchema = yup.object().shape({
+		email: yup
+			.string()
+			.matches(
+				/^[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}$/i,
+				'E-mail имеет неверную структуру ',
+			),
+		password: yup
+			.string()
+			.min(6, 'Неверный пароль. Должно быть не меньше 6 символов')
+			.max(12, 'Неверный пароль. Должно быть не больше 12 символов'),
+	});
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm({
+		defaultValues: {
+			email: '',
+			password: '',
+		},
+		resolver: yupResolver(fieldsSchema),
+	});
+	let registerError = errors.email?.message;
+	const onSubmit = (formData) => {
+		debugger;
+		console.log(formData);
 	};
 	return (
 		<div className={styles.formStyle}>
 			<h1>Register new user</h1>
-			<form>
+			<form onSubmit={handleSubmit(onSubmit)}>
 				{registerError && (
 					<div className={styles.errorLabel}>{registerError}</div>
 				)}
 				<div>
 					<input
 						type="text"
-						name="field1"
 						placeholder="Email Address"
-						value={email}
-						onChange={({ target }) => {
-							setEmail(target.value);
-						}}
-						onBlur={onEmailBlur}
+						{...register('email')}
 					/>
 				</div>
 				<div>
 					<input
 						type="password"
-						name="field2"
 						placeholder="Enter  password"
-						value={password1}
-						onChange={({ target }) => {
-							setPassword1(target.value);
-						}}
-						onBlur={onPasswordBlur}
+						{...register('password')}
 					/>
 				</div>
 				<div>
 					<input
 						type="password"
-						name="field3"
-						value={password2}
-						onChange={({ target }) => {
-							setPassword2(target.value);
-						}}
-						onBlur={onPasswordBlur}
 						placeholder="Repeat password"
+						{...register('password')}
 					/>
 				</div>
 				<div>
@@ -76,6 +64,7 @@ export const Form = () => {
 						type="submit"
 						className={styles.formStyleSubmit}
 						value="Register"
+						disabled={!!registerError}
 					/>
 				</div>
 			</form>
